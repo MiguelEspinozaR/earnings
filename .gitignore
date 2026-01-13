@@ -1,0 +1,11 @@
+# Archivos de compilación de Java
+target/
+*.class
+
+# Configuración de IDEs
+.idea/
+.vscode/
+*.iml
+
+# Archivos de sistema
+.DS_Store
