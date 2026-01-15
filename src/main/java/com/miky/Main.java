@@ -4,8 +4,8 @@ import static com.miky.model.Split.split2;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import com.miky.config.DatabaseConnection;
 
-import com.miky.config.*;
 public class Main {
     public static void main(String[] args) {
 
@@ -28,8 +28,6 @@ public class Main {
             System.err.println("Mensaje: " + e.getMessage());
             System.err.println("Estado SQL: " + e.getSQLState());
             
-            // Tip de ingeniería: Si el error es "timeout", revisa el firewall de Aiven.
-            // Si el error es "password authentication failed", revisa tu contraseña.
         }
     }
 }
