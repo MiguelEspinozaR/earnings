@@ -2,10 +2,10 @@
 -- PostgreSQL database dump
 --
 
-\restrict IU291EEOcKGmShpO4cvueP7kLJqj4K6DiY3nMG3HVJZJ7cAshsGKak290y1Lv3t
+\restrict IsjxZUAYLwYnu2accwQ7bnn81unkZIGoqJGEIXFAHi9qN9hvWW66Qf7TD2jePmL
 
 -- Dumped from database version 17.7
--- Dumped by pg_dump version 17.7 (Ubuntu 17.7-3.pgdg24.04+1)
+-- Dumped by pg_dump version 18.1 (Ubuntu 18.1-1.pgdg24.04+2)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -46,6 +46,7 @@ CREATE TABLE earnings.ingresos (
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     active boolean DEFAULT true NOT NULL,
+    CONSTRAINT consistencia_fechas CHECK ((fecha_pago >= fecha_facturacion)),
     CONSTRAINT positivo CHECK ((monto > (0)::numeric))
 );
 
@@ -206,21 +207,6 @@ ALTER TABLE ONLY earnings.tasas ALTER COLUMN id SET DEFAULT nextval('earnings.ta
 
 
 --
--- Name: ingresos consistencia fechas; Type: CHECK CONSTRAINT; Schema: earnings; Owner: avnadmin
---
-
-ALTER TABLE earnings.ingresos
-    ADD CONSTRAINT "consistencia fechas" CHECK ((fecha_pago >= fecha_facturacion)) NOT VALID;
-
-
---
--- Name: CONSTRAINT "consistencia fechas" ON ingresos; Type: COMMENT; Schema: earnings; Owner: avnadmin
---
-
-COMMENT ON CONSTRAINT "consistencia fechas" ON earnings.ingresos IS 'la fecha del pago nunca será previa a la facturación';
-
-
---
 -- Name: ingresos ingresos_pkey; Type: CONSTRAINT; Schema: earnings; Owner: avnadmin
 --
 
@@ -245,11 +231,33 @@ ALTER TABLE ONLY earnings.tasas
 
 
 --
+-- Name: idx_unica_tasa_activa; Type: INDEX; Schema: earnings; Owner: avnadmin
+--
+
+CREATE UNIQUE INDEX idx_unica_tasa_activa ON earnings.tasas USING btree (active) WHERE (active = true);
+
+
+--
 -- Name: splits fk_config_tasas; Type: FK CONSTRAINT; Schema: earnings; Owner: avnadmin
 --
 
 ALTER TABLE ONLY earnings.splits
     ADD CONSTRAINT fk_config_tasas FOREIGN KEY (id_tasas) REFERENCES earnings.tasas(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: splits fk_ingreso_split; Type: FK CONSTRAINT; Schema: earnings; Owner: avnadmin
+--
+
+ALTER TABLE ONLY earnings.splits
+    ADD CONSTRAINT fk_ingreso_split FOREIGN KEY (id_ingreso) REFERENCES earnings.ingresos(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: CONSTRAINT fk_ingreso_split ON splits; Type: COMMENT; Schema: earnings; Owner: avnadmin
+--
+
+COMMENT ON CONSTRAINT fk_ingreso_split ON earnings.splits IS 'Vincula el cálculo del split con su ingreso origen';
 
 
 --
@@ -292,5 +300,5 @@ ALTER DEFAULT PRIVILEGES FOR ROLE avnadmin IN SCHEMA earnings GRANT ALL ON TABLE
 -- PostgreSQL database dump complete
 --
 
-\unrestrict IU291EEOcKGmShpO4cvueP7kLJqj4K6DiY3nMG3HVJZJ7cAshsGKak290y1Lv3t
+\unrestrict IsjxZUAYLwYnu2accwQ7bnn81unkZIGoqJGEIXFAHi9qN9hvWW66Qf7TD2jePmL
 
